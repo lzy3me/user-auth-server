@@ -1,5 +1,5 @@
 const express = require('express')
-const { check, validationResult } = require('express-validator/check')
+const {check, validationResult} = require('express-validator/check')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const router = express.Router()
@@ -100,7 +100,7 @@ router.post('/signin', [
         })
     }
 
-    const { email, password } = req.body
+    const {email, password} = req.body
     try {
         let user = await User.findOne({
             email
@@ -111,31 +111,31 @@ router.post('/signin', [
                 message: 'this user dose not exist'
             })
 
-            const isMatch = await bcrypt.compare(password, user.password)
-            if (!isMatch) 
-                return res.status(400).json({
-                    message: "incorrect password"
-                })
+        const isMatch = await bcrypt.compare(password, user.password)
+        if (!isMatch)
+            return res.status(400).json({
+                message: "incorrect password"
+            })
 
-            const payload = {
-                user: {
-                    id: user.id
-                }
+        const payload = {
+            user: {
+                id: user.id
             }
-    
-            jwt.sign(
-                payload,
-                process.env.RAND_STR, {
-                    expiresIn: 3600
-                },
-                (err, token) => {
-                    if (err) throw err
-                    res.status(200).json({
-                        token
-                    })
-                }
-            )
-            
+        }
+
+        jwt.sign(
+            payload,
+            process.env.RAND_STR, {
+                expiresIn: 3600
+            },
+            (err, token) => {
+                if (err) throw err
+                res.status(200).json({
+                    token
+                })
+            }
+        )
+
     } catch (err) {
         console.error(err.message)
         res.status(500).send('an error occured on server or someting')
