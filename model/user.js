@@ -16,7 +16,20 @@ const UserSchema = new mongoose.Schema({
     createAt: {
         type: Date,
         default: Date.now()
-    }
+    },
+    profile: {
+        characters: {
+            info: {
+                nickname: String,
+                level: Number,
+                experience: Number,
+                dialogues: String,
+            },
+            skills: {
+                vision: Number,
+            },
+        },
+    },
 })
 
 module.exports = mongoose.model('user', UserSchema)
