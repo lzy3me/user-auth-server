@@ -21,8 +21,14 @@ const UserSchema = new mongoose.Schema({
         characters: {
             info: {
                 nickname: String,
-                level: Number,
-                experience: Number,
+                level: {
+                    type: Number,
+                    default: 1
+                },
+                experience: {
+                    type: Number,
+                    default: 0
+                },
                 dialogues: String,
             },
             skills: {

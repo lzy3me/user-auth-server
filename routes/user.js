@@ -9,18 +9,22 @@ const auth = require('../middleware/auth')
 
 /**
  * @method - POST
- * @param - /signup
+ * @param - /signup : body {username, email, password}
  * @description - User Sign Up
  */
 router.post('/signup', [
-    check('username', '#101-username-void')
-        .not()
-        .isEmpty(),
-    check('email', '#102-email-vaild').isEmail(),
-    check('password', '#103-password-vaild')
+    check('username')
+        .isLength({min: 6, max: 25})
+        .withMessage('#1011-must-length-from-6-to-20'),
+    check('email')
+        .isEmail()
+        .withMessage('#1021-must-be-vaild-email'),
+    check('password')
         .isLength({
             min: 8
         })
+        .withMessage('#1031-must-have-up-to-8-characters')
+        // .matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/)
 ], async (req, res) => {
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
@@ -42,7 +46,8 @@ router.post('/signup', [
 
         if (user) {
             return res.status(400).json({
-                msg: 'this username already taken'
+                code: 1022,
+                msg: 'this email already taken'
             })
         }
 
@@ -83,14 +88,18 @@ router.post('/signup', [
 
 /**
  * @method - POST
- * @param - /signin
+ * @param - /signin : body {email, password}
  * @description - User Sign into the server
  */
 router.post('/signin', [
-    check('email', '#201-email-valid').isEmail(),
-    check('password', '#202-password-valid').isLength({
-        min: 8
-    })
+    check('email')
+        .isEmail()
+        .withMessage('#1021-must-be-vaild-email'),
+    check('password')
+        .isLength({
+            min: 8
+        })
+        .withMessage('#1031-must-have-up-to-8-characters')
 ], async (req, res) => {
     const errors = validationResult(req)
 
@@ -126,7 +135,7 @@ router.post('/signin', [
         jwt.sign(
             payload,
             process.env.RAND_STR, {
-                expiresIn: 3600
+                expiresIn: 518400
             },
             (err, token) => {
                 if (err) throw err
@@ -145,12 +154,29 @@ router.post('/signin', [
 /**
  * @method - GET
  * @param - /profile
- * @@description - Get logged in user
+ * @description - Get logged in user, require 'token' for authentication
  */
 router.get('/profile', auth, async (req, res) => {
     try {
         const user = await User.findById(req.user.id)
         res.json(user)
+    } catch (err) {
+        res.status(400).json({
+            message: "error fetching user"
+        })
+    }
+})
+
+/**
+ * @method - POST
+ * @param - /profile : body {nickname, ?}
+ * @description - todo
+ */
+router.post('/profile', auth, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id)
+        
+        // Todo
     } catch (err) {
         res.status(400).json({
             message: "error fetching user"
